@@ -51,3 +51,52 @@ takeR n xs = reverse $ take' n $ reverse xs
 -- リストの末尾から n 個の要素を取り除く関数 dropR n xs
 dropR :: Int -> [a] -> [a]
 dropR n xs = reverse $ drop' n $ reverse xs
+
+-- リスト xs を長さ n の部分リストに分割する関数 group n xs
+group :: Int -> [a] -> [[a]]
+group _ [] = []
+group n xs = take' n xs : group n (drop' n xs)
+
+-- 2 つのリスト xs, ys の要素 x, y を取り出し、タプル (x, y) にまとめてリストに格納して返す関数 zip xs ys 
+zip1 :: [a] -> [b] -> [(a, b)]
+-- zip1 _ [] = []
+-- zip1 [] _ = []
+zip1 _ _ = [] -- どちらかが空はこれでok
+zip1 (x:xs) (y:ys) = (x, y) : zip1 xs ys
+
+-- zip したリストを元に戻す関数 unzip xs
+unzip1 :: [(a, b)] -> ([a], [b])
+unzip1 xs = ([x | (x, _) <- xs], [y | (_, y) <- xs])
+
+-- 対応する値を求める関数 assoc key alist と、述語 pred が真を返すキーを探す関数 assoc_if pred alist
+assoc :: Eq a => a -> [(a, b)] -> Maybe b
+assoc _ [] = Nothing
+assoc n ((a, b):xs)
+    | n == a = Just b
+    | otherwise = assoc n xs
+
+assoc_if :: (a -> Bool) -> [(a, b)] -> Maybe b
+assoc_if _ [] = Nothing
+assoc_if f ((a, b):xs)
+    | f a = Just b
+    | otherwise = assoc_if f xs
+
+-- リスト xs の中から述語 pred が真を返す最初の要素を求める関数 find_if pred xs
+find_if :: (a -> Bool) -> [a] -> Maybe a
+find_if _ [] = Nothing
+find_if f (x:xs)
+    | f x = Just x
+    | otherwise = find_if f xs
+
+-- リスト xs の中から述語 pred が真を返す最初の要素の位置を求める関数 position_if pred xs
+position_if :: (a -> Bool) -> [a] -> Maybe Int
+position_if p xs = iter 0 xs
+    where
+        iter _ [] = Nothing
+        iter i (x:xs)
+            | p x = Just i
+            | otherwise = iter (i + 1) xs
+
+-- リスト xs から述語 pred が真を返す要素の個数を求める関数 count_if pred xs
+count_if :: (a -> Bool) -> [a] -> Int
+count_if p xs = foldl (\a x -> if p x then a + 1 else a) 0 xs
