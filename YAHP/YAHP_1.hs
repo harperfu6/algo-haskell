@@ -100,3 +100,27 @@ position_if p xs = iter 0 xs
 -- リスト xs から述語 pred が真を返す要素の個数を求める関数 count_if pred xs
 count_if :: (a -> Bool) -> [a] -> Int
 count_if p xs = foldl (\a x -> if p x then a + 1 else a) 0 xs
+
+-- リスト xs の中から最大値を求める関数 max_list xs と最小値を求める関数 min_list xs
+max_list :: Ord a => [a] -> a
+max_list (x:xs) = foldl (\a x -> if a < x then x else a) x xs
+
+min_list :: Ord a => [a] -> a
+min_list (x:xs) = foldl (\a x -> if a > x then x else a) x xs
+
+-- リスト xs から重複要素を取り除く関数 removeDup xs
+removeDup :: Eq a => [a] -> [a]
+--- リスト要素チェックはelem
+removeDup xs = foldr (\x a -> if elem x a then a else x:a) [] xs
+
+-- 2 つの集合の和を求める関数 union xs ys
+union :: Eq a => [a] -> [a] -> [a]
+union xs ys = removeDup (xs++ys)
+
+-- 2 つの集合の積を求める関数 intersection xs ys
+intersection :: Eq a => [a] -> [a] -> [a]
+intersection xs ys = [x | x <- xs, elem x ys]
+
+-- 2 つの集合の差を求める関数 difference xs ys 
+difference :: Eq a => [a] -> [a] -> [a]
+difference xs ys = [x | x <- xs, notElem x ys]
