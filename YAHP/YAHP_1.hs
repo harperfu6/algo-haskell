@@ -1,7 +1,3 @@
-module YAHP_1 (
-    single
-) where
-
 -- リストの要素がただひとつか調べる述語 single
 single :: [a] -> Bool
 single [_] = True
@@ -124,3 +120,43 @@ intersection xs ys = [x | x <- xs, elem x ys]
 -- 2 つの集合の差を求める関数 difference xs ys 
 difference :: Eq a => [a] -> [a] -> [a]
 difference xs ys = [x | x <- xs, notElem x ys]
+
+-- リスト xs を挿入ソートする関数 insert_sort xs
+insert_sort :: Ord a => [a] -> [a]
+insert_sort [] = []
+insert_sort (x:xs) = insert_element x (insert_sort xs)
+    where
+        insert_element x [] = [x]
+        insert_element x a@(y:ys)
+            | x > y = y : insert_element x ys
+            | otherwise = x : a
+
+-- リスト xs を述語 pred が真を返すものと偽を返すものの 2 つに分ける関数 partition_if pred xs
+partition_if :: (a -> Bool) -> [a] -> ([a], [a])
+partition_if p xs = ([x | x <- xs, p x], [x | x <- xs, not (p x)])
+
+-- リスト xs をクイックソートする関数 quick_sort xs
+quick_sort :: Ord a => [a] -> [a]
+quick_sort [] = []
+quick_sort (n:xs) = (ql n xs) ++ [n] ++ (qr n xs)
+    where
+        ql n xs = quick_sort [x | x <- xs, x < n]
+        qr n xs = quick_sort [x | x <- xs, x >= n]
+
+-- 2 つのソート済みのリストをひとつのソート済みのリストにまとめる関数 merge_list xs ys
+merge_list :: Ord a => [a] -> [a] -> [a]
+merge_list xs [] = xs
+merge_list [] ys = ys
+merge_list a@(x:xs) b@(y:ys)
+    | x <= y = x : merge_list xs b
+    | otherwise = y : merge_list a ys
+
+-- 関数 merge_list を使って長さ n のリスト xs をソートする merge_sort n xs
+merge_sort :: Ord a => [a] -> [a]
+merge_sort xs = iter1 (map (:[]) xs)
+    where
+        iter1 [x] = x -- 最終的にマージを繰り返し[[1,2,3...]]のような状態になったら中身を取り出す
+        iter1 xs = iter1 (iter2 xs)
+        iter2 [] = []
+        iter2 [x] = [x]
+        iter2 (x:y:zs) = merge_list x y : iter2 zs
