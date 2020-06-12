@@ -57,8 +57,8 @@ group n xs = take' n xs : group n (drop' n xs)
 zip1 :: [a] -> [b] -> [(a, b)]
 -- zip1 _ [] = []
 -- zip1 [] _ = []
-zip1 _ _ = [] -- どちらかが空はこれでok
 zip1 (x:xs) (y:ys) = (x, y) : zip1 xs ys
+zip1 _ _ = [] -- どちらかが空はこれでokだが，すべてにマッチングするのでotherwiseのようにする
 
 -- zip したリストを元に戻す関数 unzip xs
 unzip1 :: [(a, b)] -> ([a], [b])
