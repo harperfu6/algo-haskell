@@ -32,3 +32,31 @@ foldr2 _ a _ _ = a
 maplist :: ([a] -> b) -> [a] -> [b]
 maplist _ [] = []
 maplist f a@(x:xs) = f a : maplist f xs
+
+-- リストそのものを関数に渡して畳み込みを行う方法も考えられます。リストの先頭から畳み込みを行う関数 pair_foldl と、末尾から畳み込みを行う関数 pair_foldr
+pair_foldl :: ([a] -> b -> b) -> b -> [a] -> b
+pair_foldl f ax m@(x:xs) = pair_foldl f (f m ax) xs
+pair_foldl _ ax _ = ax
+
+pair_foldr :: ([a] -> b -> b) -> b -> [a] -> b
+pair_foldr f ax m@(x:xs) = f m (pair_foldr f ax xs)
+pair_foldr _ ax _ = ax
+
+-- リストを平坦化する関数 flatten
+flatten :: [[a]] -> [a]
+flatten [] = []
+flatten (x:xs) = x ++ flatten xs
+
+-- リスト xs に格納されたリストに関数 f oを適用し、その結果を連結する関数 flatmap f xs
+flatmap :: (a -> [b]) -> [a] -> [b]
+flatmap _ [] = []
+flatmap f (x:xs) = f x ++ flatmap f xs
+
+-- 集合を表すリスト xs, ys の直積集合を求める関数 product_set xs ys 
+product_set :: [a] -> [b] -> [(a, b)]
+product_set xs ys = [(x, y) | x <- xs, y <- ys]
+
+-- リスト xs のべき集合を求める関数 power_set xs
+power_set :: [a] -> [[a]]
+power_set [] = [[]]
+power_set (x:xs) = power_set xs ++ [x:ys | ys <- power_set xs]
