@@ -86,4 +86,58 @@ repeat_perm n xs = [x:ys | x <- xs, ys <- repeat_perm (n - 1) xs]
 combination :: Int -> [a] -> [[a]]
 combination 0 _ = [[]]
 combination _ [] = []
-combination n (x:xs) = map (x:) (combination (n - 1) xs) ++ combination n xs
+combination n (x:xs) = [x:y | y <- (combination (n - 1) xs)] ++ combination n xs
+-- combination n (x:xs) = map (x:) (combination (n - 1) xs) ++ combination n xs
+
+-- リストから重複を許して n 個の要素を選ぶ組み合わせを求める関数 repeat_comb
+repeat_comb :: Int -> [a] -> [[a]]
+repeat_comb 0 _ = [[]]
+repeat_comb _ [] = error "repeat_comb empty list"
+repeat_comb n [x] = [make_list x n]
+repeat_comb n a@(x:xs) =
+  [x:y | y <- repeat_comb (n - 1) a] ++ repeat_comb n xs
+
+-- リストを n 番目の要素で二分割する関数 split_at
+split_at :: Int -> [a] -> ([a], [a])
+split_at n xs = (take n xs, drop n xs)
+
+-- リストの要素に述語 p を適用し、一つでも真を返す要素があれば真を返す関数 any と、一つでも偽を返す要素があれば偽を返す (全てが真の場合に真を返す) 関数 every
+any' :: (a -> Bool) -> [a] -> Bool
+any' _ [] = False
+any' p (x:xs)
+    | p x = True
+    | otherwise = any' p xs
+
+every :: (a -> Bool) -> [a] -> Bool
+every _ [] = True
+every p (x:xs)
+    | p x = every p xs
+    | otherwise = False
+
+-- y と等しいリスト xs の要素を全て x に置換する関数 substitute x y xs
+substitute :: Eq a => a -> a -> [a] -> [a]
+substitute _ _ [] = []
+substitute x y (n:xs) = (check x y n) : substitute x y xs
+    where
+        check x y n
+            | y == n = x
+            | otherwise = n
+
+-- 述語 p が真を返す要素を全て x に置換する関数 substitute_if p x xs
+substitute_if :: (a -> Bool) -> a -> [a] -> [a]
+substitute_if _ _ [] = []
+substitute_if p x (n:xs) = (check p x n) : substitute_if p x xs
+    where
+        check p x n
+            | p n = x
+            | otherwise = n
+
+-- リスト xs の中で連続した等しい要素を部分リストにまとめる関数 pack
+pack :: Eq a => [a] -> [[a]]
+pack [] = error "pack empty list"
+pack (x:xs) = iter xs [x] [] -- xsは残りのリスト，[x]は今対象のリスト，[]はチェック済みのリスト
+    where
+        iter [] ys zs = reverse (ys:zs) -- チェック済みはとりあえず蓄積して最後反転
+        iter (x:xs) ys@(y:_) zs
+            | x == y = iter xs (x:ys) zs
+            | otherwise = iter xs [x] (ys:zs)
