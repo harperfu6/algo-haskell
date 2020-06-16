@@ -60,3 +60,30 @@ product_set xs ys = [(x, y) | x <- xs, y <- ys]
 power_set :: [a] -> [[a]]
 power_set [] = [[]]
 power_set (x:xs) = power_set xs ++ [x:ys | ys <- power_set xs]
+
+-- リスト xs に x を挿入するパターンをすべて求めてリストに格納して返す関数 interleave x xs 
+interleave :: a -> [a] -> [[a]]
+interleave x [] = [[x]]
+interleave x a@(y:ys) = [x:a] ++ map (y:) (interleave x ys)
+
+-- リストから n 個の要素を選ぶ順列を求める関数 permutation
+permutation :: Eq a => Int -> [a] -> [[a]]
+permutation 0 _ = [[]]
+permutation n xs = [x:ys | x <- xs, ys <- permutation (n - 1) (remove x xs)]
+
+-- リストからすべての要素を選ぶ順列を求める関数 permutation1
+permutation1 :: [a] -> [[a]]
+permutation1 [] = [[]]
+permutation1 (x:xs) = flatmap (interleave x) (permutation1 xs)
+
+-- リストから重複を許して n 個の要素を選ぶ順列を求める関数 repeat_perm
+-- repeat_perm :: Int -> [a] -> [[a]]
+repeat_perm :: Int -> [a] -> [[a]]
+repeat_perm 0 _ = [[]]
+repeat_perm n xs = [x:ys | x <- xs, ys <- repeat_perm (n - 1) xs]
+
+-- リストから n 個の要素を選ぶ組み合わせを求める関数 combination
+combination :: Int -> [a] -> [[a]]
+combination 0 _ = [[]]
+combination _ [] = []
+combination n (x:xs) = map (x:) (combination (n - 1) xs) ++ combination n xs
