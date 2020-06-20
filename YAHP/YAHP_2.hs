@@ -134,10 +134,54 @@ substitute_if p x (n:xs) = (check p x n) : substitute_if p x xs
 
 -- リスト xs の中で連続した等しい要素を部分リストにまとめる関数 pack
 pack :: Eq a => [a] -> [[a]]
-pack [] = error "pack empty list"
 pack (x:xs) = iter xs [x] [] -- xsは残りのリスト，[x]は今対象のリスト，[]はチェック済みのリスト
     where
         iter [] ys zs = reverse (ys:zs) -- チェック済みはとりあえず蓄積して最後反転
         iter (x:xs) ys@(y:_) zs
             | x == y = iter xs (x:ys) zs
             | otherwise = iter xs [x] (ys:zs)
+
+-- 整列済みの整数を表すリストで、連続している部分列を (start, end) に置き換える関数 pack_num_list
+pack_num_list :: [Integer] -> [(Integer, Integer)]
+pack_num_list (x:xs) = iter xs [(x, x)]
+    where
+        iter [] a = reverse a
+        iter (x:xs) a@((s, e):ys)
+            | x == e + 1 = iter xs ((s, x):ys)
+            | otherwise = iter xs ((x, x):a)
+
+-- 上記の逆変換を行う関数 expand_num_list
+expand_num_list :: [(Integer, Integer)] -> [Integer]
+expand_num_list [] = []
+expand_num_list (x:xs) = expand x ++ expand_num_list xs
+    where
+        expand (s, e)
+            | s == e = [e]
+            | otherwise = s : expand ((s + 1), e)
+
+-- 連続している同じ記号を (code, num) に変換する関数 encode
+encode :: Eq a => [a] -> [(a, Int)]
+encode (x:xs) = iter xs [(x, 1)]
+    where
+        iter [] a = reverse a
+        iter (x:xs) a@((c, n):ys)
+            | x == c = iter xs ((c, (n + 1)):ys)
+            | otherwise = iter xs ((x, 1):a)
+
+-- 上記の逆変換を行う関数 decode
+decode :: Eq a => [(a, Int)] -> [a]
+decode [] = []
+decode (x:xs) = expand x ++ decode xs
+    where
+        expand (c, n)
+            | n == 0 = []
+            | otherwise = c : expand (c, (n - 1))
+
+-- 自然数 n 以下の素数をすべて求める関数 sieve
+sieve :: Integer -> [Integer]
+sieve n = foldr (\x a -> (iter x 2)++a) [] [2..n]
+    where
+        iter n c
+            | (c * 2) > n = [n]
+            | n `mod` c == 0 = [] 
+            | otherwise = iter n (c + 1)
