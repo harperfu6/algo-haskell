@@ -41,3 +41,26 @@ divisor n =
 --- 完全数（かんぜんすう，perfect number）とは、その数自身を除く約数の和が、その数自身と等しい自然数のことである
 perfect_number :: Integer -> [Integer]
 perfect_number n = filter (\x -> ((divisor_sum x) - x) == x) [2..n]
+
+-- 自然数 n 以下の友愛数を求める関数 yuuai_number
+--- 友愛数（ゆうあいすう）とは、異なる2つの自然数の組で、自分自身を除いた約数の和が、互いに他方と等しくなるような数をいう
+yuuai_number :: Integer -> [(Integer, Integer)]
+yuuai_number n = foldr (\x a -> let m = divisor_sum x - x
+                                in if x < m && divisor_sum m - m == x then (x, m):a else a)
+                                []
+                                [2 .. n]
+
+-- 自然数 n の分割数を求める関数 partition_number
+-- 
+-- p(n, k) = 0                          ; n < 0 または k < 1
+-- p(n, k) = 1                          ; n = 0 または k = 1
+-- p(n, k) = p(n - k, k) + p(n, k - 1)
+partition_number :: Integer -> Integer
+partition_number n = part_num n n
+    where
+        part_num 0 _ = 1
+        part_num 1 _ = 1
+        part_num _ 1 = 1
+        part_num n k
+            | n < 0 || k < 1 = 0
+            | otherwise = part_num (n - k) k + part_num n (k - 1)
